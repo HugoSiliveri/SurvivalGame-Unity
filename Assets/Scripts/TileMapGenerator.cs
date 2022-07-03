@@ -5,14 +5,10 @@ using UnityEngine.Tilemaps;
 
 public class TileMapGenerator : MonoBehaviour
 {
-    Dictionary<int, GameObject> tileset;
+    Dictionary<int, Tile> tileset;
     Dictionary<int, AnimatedTile> tilesetAnimated;
-    Dictionary<int, GameObject> tileGroups;
 
     public Texture2D beachTileset;
-
-    List<List<int>> noiseGrid = new List<List<int>>();
-    List<List<GameObject>> tileGrid = new List<List<GameObject>>();
     public Tilemap tilemap;
 
     Dictionary<Vector2, string> tileBiome = new Dictionary<Vector2, string>();
@@ -20,22 +16,19 @@ public class TileMapGenerator : MonoBehaviour
     public void GenerateTileMap(float[,] heightMap, TerrainType[] regions)
     {
         CreateTileset();
-        CreateTileGroups();
         CreateMap(heightMap, regions);
         ReplaceWithBitmask(heightMap, regions);
     }
 
     void CreateTileset()
     {
-        tileset = new Dictionary<int, GameObject>();
+        tileset = new Dictionary<int, Tile>();
         Sprite[] sprites = Resources.LoadAll<Sprite>(beachTileset.name);
         for(int i = 0; i < sprites.Length; i++)
         {
-            GameObject g = new GameObject();
-            g.hideFlags = HideFlags.HideAndDontSave;
-            SpriteRenderer sr = g.AddComponent<SpriteRenderer>();
-            sr.sprite = sprites[i];
-            tileset.Add(i, g);
+            Tile t = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
+            t.sprite = sprites[i];
+            tileset.Add(i, t);
         }
 
         tilesetAnimated = new Dictionary<int, AnimatedTile>();
@@ -51,36 +44,17 @@ public class TileMapGenerator : MonoBehaviour
 
     }
 
-    void CreateTileGroups()
-    {
-        tileGroups = new Dictionary<int, GameObject>();
-
-        foreach (KeyValuePair<int, GameObject> prefab_pair in tileset)
-        {
-            GameObject tile_group = new GameObject(prefab_pair.Value.name);
-            tile_group.transform.parent = gameObject.transform;
-            tile_group.transform.localPosition = new Vector3(3, 3, 0);
-            tileGroups.Add(prefab_pair.Key, tile_group);
-        }
-    }
-
     void CreateMap(float[,] heightMap, TerrainType[] regions)
     {
 
         int mapWidth = heightMap.GetLength(0);
         int mapHeight = heightMap.GetLength(1);
 
-        tilemap.transform.localPosition = new Vector3(2.5f, 2.5f, 0);
-
         for (int x = 0; x < mapWidth; x++)
         {
-            noiseGrid.Add(new List<int>());
-            tileGrid.Add(new List<GameObject>());
-
             for (int y = 0; y < mapHeight; y++)
             {
-                int tile_id = GetIdUsingBitmask(heightMap[x, y], regions);
-                noiseGrid[x].Add(tile_id);
+                int tile_id = GetIdUsingPerlin(heightMap[x, y], regions);
 
                 Vector2 v = new Vector2(x, y);
                 if (tile_id == 20)
@@ -102,7 +76,7 @@ public class TileMapGenerator : MonoBehaviour
         }
     }
 
-   int GetIdUsingBitmask(float perlinValue, TerrainType[] regions)
+   int GetIdUsingPerlin(float perlinValue, TerrainType[] regions)
    {
         if (perlinValue <= regions[0].height)
         {
@@ -118,42 +92,27 @@ public class TileMapGenerator : MonoBehaviour
         }
     }
 
-
     void CreateTile(int tileID, int x, int y)
     {
-        GameObject tilePrefab = tileset[tileID];
-        GameObject tileGroup = tileGroups[tileID];
-        GameObject tile = Instantiate(tilePrefab, tileGroup.transform);
 
-        tile.name = string.Format("tile_x{0}_y{1}", x, y);
-        tile.transform.localPosition = new Vector3(x, y, 0);
-
-        tileGrid[x].Add(tile);
+        Vector3Int vector3Int = new Vector3Int(x, y, 0);
+        Tile at = tileset[tileID];
+        tilemap.SetTile(vector3Int, at);
     }
 
     private void UpdateTile(int tileID, int x, int y, bool isAnimated)
     {
-
         if (isAnimated)
         {
             Vector3Int vector3Int = new Vector3Int(x, y, 0);
             AnimatedTile at = tilesetAnimated[tileID];
-            tilemap.SetTile(vector3Int, at);
-            GameObject g = tileGrid[x][y];
-            g.GetComponent<Renderer>().enabled = false;
-            
+            tilemap.SetTile(vector3Int, at);            
         }
         else {
-            GameObject tilePrefab = tileset[tileID];
-            GameObject tileGroup = tileGroups[tileID];
-            GameObject tile = Instantiate(tilePrefab, tileGroup.transform);
-            tile.name = string.Format("tile_x{0}_y{1}", x, y);
-            tile.transform.localPosition = new Vector3(x, y, 0);
-            tileGrid[x][y] = tile;
+            Vector3Int vector3Int = new Vector3Int(x, y, 0);
+            Tile at = tileset[tileID];
+            tilemap.SetTile(vector3Int, at);
         }
-
-
-       
     }
 
     void ReplaceWithBitmask(float[,] heightMap, TerrainType[] regions)
