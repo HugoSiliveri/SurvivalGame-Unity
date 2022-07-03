@@ -8,7 +8,7 @@ public class MapGenerator : MonoBehaviour {
 	public enum DrawMode {NoiseMap, ColourMap, TileMap};
 	public DrawMode drawMode;
 
-	public const int mapChunkSize = 100;
+	public const int mapChunkSize = 241;
 	public float noiseScale;
 
 	public int octaves;
@@ -24,8 +24,14 @@ public class MapGenerator : MonoBehaviour {
 	public TerrainType[] regions;
 	TileMapGenerator tileMapGenerator;
 
+	float[,] falloffMap;
 
-	public float[,] GenerateMap() {
+    private void Awake()
+    {
+		falloffMap = FalloffGenerator.GenerateFalloffMap(mapChunkSize);
+    }
+
+    public float[,] GenerateMap() {
 
 		float[,] noiseMap = Noise.GenerateNoiseMap (mapChunkSize, mapChunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);
 
@@ -34,6 +40,8 @@ public class MapGenerator : MonoBehaviour {
         {
 			for (int x = 0; x < mapChunkSize; x++)
             {
+				noiseMap[x, y] = Mathf.Clamp01(noiseMap[x, y] - falloffMap[x, y]);
+
 				float currentHeight = noiseMap[x, y];
 				for (int i = 0; i < regions.Length; i++)
                 {
@@ -76,6 +84,8 @@ public class MapGenerator : MonoBehaviour {
         {
 			octaves = 0;
         }
+
+		falloffMap = FalloffGenerator.GenerateFalloffMap(mapChunkSize);
     }
 }
 
