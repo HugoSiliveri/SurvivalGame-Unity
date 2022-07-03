@@ -1,12 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
+using UnityEngine.Tilemaps;
 
 public class MapGenerator : MonoBehaviour {
 
-	public enum DrawMode {NoiseMap, ColourMap};
+	public enum DrawMode {NoiseMap, ColourMap, TileMap};
 	public DrawMode drawMode;
 
-	public const int mapChunkSize = 241;
+	public const int mapChunkSize = 100;
 	public float noiseScale;
 
 	public int octaves;
@@ -20,8 +22,11 @@ public class MapGenerator : MonoBehaviour {
 	public bool autoUpdate;
 
 	public TerrainType[] regions;
+	TileMapGenerator tileMapGenerator;
 
-	public void GenerateMap() {
+
+	public float[,] GenerateMap() {
+
 		float[,] noiseMap = Noise.GenerateNoiseMap (mapChunkSize, mapChunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);
 
 		Color[] colourMap = new Color[mapChunkSize * mapChunkSize];
@@ -51,6 +56,13 @@ public class MapGenerator : MonoBehaviour {
         {
 			display.DrawTexture(TextureGenerator.TextureFromColourMap(colourMap, mapChunkSize, mapChunkSize));
         }
+		else if (drawMode == DrawMode.TileMap)
+        {
+			tileMapGenerator = FindObjectOfType<TileMapGenerator>();
+			tileMapGenerator.GenerateTileMap(noiseMap, regions);
+        }
+
+		return noiseMap;
 		
 	}
 
