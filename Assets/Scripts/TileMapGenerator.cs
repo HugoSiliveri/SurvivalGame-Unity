@@ -9,7 +9,8 @@ public class TileMapGenerator : MonoBehaviour
     Dictionary<int, AnimatedTile> tilesetAnimated;
 
     public Texture2D beachTileset;
-    public Tilemap tilemap;
+    public Tilemap tilemapWater;
+    public Tilemap tilemapIsland;
 
     Dictionary<Vector2, string> tileBiome = new Dictionary<Vector2, string>();
 
@@ -70,7 +71,7 @@ public class TileMapGenerator : MonoBehaviour
                     tileBiome.Add(v, "grass");
                 }
 
-                CreateTile(tile_id, x, y);
+                CreateTile(tile_id, x, y, tileBiome[v]);
                 
             }
         }
@@ -92,26 +93,49 @@ public class TileMapGenerator : MonoBehaviour
         }
     }
 
-    void CreateTile(int tileID, int x, int y)
+    void CreateTile(int tileID, int x, int y, string tilemapLayer)
     {
 
         Vector3Int vector3Int = new Vector3Int(x, y, 0);
         Tile at = tileset[tileID];
-        tilemap.SetTile(vector3Int, at);
+        if (tilemapLayer == "water")
+        {
+            tilemapWater.SetTile(vector3Int, at);
+        }
+        else
+        {
+            tilemapIsland.SetTile(vector3Int, at);
+        }
     }
+       
 
-    private void UpdateTile(int tileID, int x, int y, bool isAnimated)
+    private void UpdateTile(int tileID, int x, int y, bool isAnimated, string tilemapLayer)
     {
         if (isAnimated)
         {
             Vector3Int vector3Int = new Vector3Int(x, y, 0);
             AnimatedTile at = tilesetAnimated[tileID];
-            tilemap.SetTile(vector3Int, at);            
+            if (tilemapLayer == "water")
+            {
+                tilemapWater.SetTile(vector3Int, at);
+            }
+            else
+            {
+                tilemapIsland.SetTile(vector3Int, at);
+            }
+                   
         }
         else {
             Vector3Int vector3Int = new Vector3Int(x, y, 0);
             Tile at = tileset[tileID];
-            tilemap.SetTile(vector3Int, at);
+            if (tilemapLayer == "water")
+            {
+                tilemapWater.SetTile(vector3Int, at);
+            }
+            else
+            {
+                tilemapIsland.SetTile(vector3Int, at);
+            }
         }
     }
 
@@ -140,6 +164,7 @@ public class TileMapGenerator : MonoBehaviour
                 if (0 <= x - 1 && x + 1 < mapWidth && 0 <= y - 1 && y + 1 < mapHeight)
                 {
                     perlinValue = heightMap[x, y];
+                    Vector2 v = new Vector2(x, y);
 
                     if (perlinValue <= regions[0].height)
                     {
@@ -154,40 +179,40 @@ public class TileMapGenerator : MonoBehaviour
                         switch (mask)
                         {
                             case 3:
-                                UpdateTile(7, x, y, true);
+                                UpdateTile(7, x, y, true, tileBiome[v]);
                                 break;
                             case 1:
-                                UpdateTile(5, x, y, true);
+                                UpdateTile(5, x, y, true, tileBiome[v]);
                                 break; 
                             case 5:
-                                UpdateTile(0, x, y, true);
+                                UpdateTile(0, x, y, true, tileBiome[v]);
                                 break;
                             case 2:
-                                UpdateTile(8, x, y, true);
+                                UpdateTile(8, x, y, true, tileBiome[v]);
                                 break;
                             case 4:
-                                UpdateTile(1, x, y, true);
+                                UpdateTile(1, x, y, true, tileBiome[v]);
                                 break;
                             case 10:
-                                UpdateTile(9, x, y, true);
+                                UpdateTile(9, x, y, true, tileBiome[v]);
                                 break;
                             case 8:
-                                UpdateTile(6, x, y, true);
+                                UpdateTile(6, x, y, true, tileBiome[v]);
                                 break;
                             case 12:
-                                UpdateTile(2, x, y, true);
+                                UpdateTile(2, x, y, true, tileBiome[v]);
                                 break;
                             case 13:
-                                UpdateTile(12, x, y, true);
+                                UpdateTile(12, x, y, true, tileBiome[v]);
                                 break;
                             case 14:
-                                UpdateTile(16, x, y, true);
+                                UpdateTile(16, x, y, true, tileBiome[v]);
                                 break;
                             case 7:
-                                UpdateTile(13, x, y, true);
+                                UpdateTile(13, x, y, true, tileBiome[v]);
                                 break;
                             case 11:
-                                UpdateTile(17, x, y, true);
+                                UpdateTile(17, x, y, true, tileBiome[v]);
                                 break;
 
                             default:
@@ -201,28 +226,28 @@ public class TileMapGenerator : MonoBehaviour
                                 switch (mask)
                                 {
                                     case 1:
-                                        UpdateTile(4, x, y, true);
+                                        UpdateTile(4, x, y, true, tileBiome[v]);
                                         break;
                                     case 4:
-                                        UpdateTile(11, x, y, true);
+                                        UpdateTile(11, x, y, true, tileBiome[v]);
                                         break;
                                     case 32:
-                                        UpdateTile(3, x, y, true);
+                                        UpdateTile(3, x, y, true, tileBiome[v]);
                                         break;
                                     case 128:
-                                        UpdateTile(10, x, y, true);
+                                        UpdateTile(10, x, y, true, tileBiome[v]);
                                         break;
                                     case 5:
-                                        UpdateTile(15, x, y, true);
+                                        UpdateTile(15, x, y, true, tileBiome[v]);
                                         break;
                                     case 132:
-                                        UpdateTile(14, x, y, true);
+                                        UpdateTile(14, x, y, true, tileBiome[v]);
                                         break;
                                     case 160:
-                                        UpdateTile(18, x, y, true);
+                                        UpdateTile(18, x, y, true, tileBiome[v]);
                                         break;
                                     case 33:
-                                        UpdateTile(19, x, y, true);
+                                        UpdateTile(19, x, y, true, tileBiome[v]);
                                         break;
                                 }
 
@@ -244,40 +269,40 @@ public class TileMapGenerator : MonoBehaviour
                         switch (mask)
                         {
                             case 3:
-                                UpdateTile(12, x, y, false);
+                                UpdateTile(12, x, y, false, tileBiome[v]);
                                 break;
                             case 1:
-                                UpdateTile(7, x, y, false);
+                                UpdateTile(7, x, y, false, tileBiome[v]);
                                 break;
                             case 5:
-                                UpdateTile(3, x, y, false);
+                                UpdateTile(3, x, y, false, tileBiome[v]);
                                 break;
                             case 2:
-                                UpdateTile(1, x, y, false);
+                                UpdateTile(1, x, y, false, tileBiome[v]);
                                 break;
                             case 4:
-                                UpdateTile(10, x, y, false);
+                                UpdateTile(10, x, y, false, tileBiome[v]);
                                 break;
                             case 10:
-                                UpdateTile(13, x, y, false);
+                                UpdateTile(13, x, y, false, tileBiome[v]);
                                 break;
                             case 8:
-                                UpdateTile(5, x, y, false);
+                                UpdateTile(5, x, y, false, tileBiome[v]);
                                 break;
                             case 12:
-                                UpdateTile(4, x, y, false);
+                                UpdateTile(4, x, y, false, tileBiome[v]);
                                 break;
                             case 13:
-                                UpdateTile(29, x, y, false);
+                                UpdateTile(29, x, y, false, tileBiome[v]);
                                 break;
                             case 14:
-                                UpdateTile(37, x, y, false);
+                                UpdateTile(37, x, y, false, tileBiome[v]);
                                 break;
                             case 7:
-                                UpdateTile(30, x, y, false);
+                                UpdateTile(30, x, y, false, tileBiome[v]);
                                 break;
                             case 11:
-                                UpdateTile(38, x, y, false);
+                                UpdateTile(38, x, y, false, tileBiome[v]);
                                 break;
 
                             default:
@@ -291,28 +316,28 @@ public class TileMapGenerator : MonoBehaviour
                                 switch (mask)
                                 {
                                     case 1:
-                                        UpdateTile(2, x, y, false);
+                                        UpdateTile(2, x, y, false, tileBiome[v]);
                                         break;
                                     case 4:
-                                        UpdateTile(11, x, y, false);
+                                        UpdateTile(11, x, y, false, tileBiome[v]);
                                         break;
                                     case 32:
-                                        UpdateTile(0, x, y, false);
+                                        UpdateTile(0, x, y, false, tileBiome[v]);
                                         break;
                                     case 128:
-                                        UpdateTile(9, x, y, false);
+                                        UpdateTile(9, x, y, false, tileBiome[v]);
                                         break;
                                     case 5:
-                                        UpdateTile(32, x, y, false);
+                                        UpdateTile(32, x, y, false, tileBiome[v]);
                                         break;
                                     case 132:
-                                        UpdateTile(31, x, y, false);
+                                        UpdateTile(31, x, y, false, tileBiome[v]);
                                         break;
                                     case 160:
-                                        UpdateTile(39, x, y, false);
+                                        UpdateTile(39, x, y, false, tileBiome[v]);
                                         break;
                                     case 33:
-                                        UpdateTile(40, x, y, false);
+                                        UpdateTile(40, x, y, false, tileBiome[v]);
                                         break;
 
                                 }
