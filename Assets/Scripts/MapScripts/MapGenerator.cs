@@ -31,6 +31,11 @@ public class MapGenerator : MonoBehaviour {
 		falloffMap = FalloffGenerator.GenerateFalloffMap(mapChunkSize);
     }
 
+    private void Start()
+    {
+		GenerateMap();
+    }
+
     public float[,] GenerateMap() {
 
 		float[,] noiseMap = Noise.GenerateNoiseMap (mapChunkSize, mapChunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset);

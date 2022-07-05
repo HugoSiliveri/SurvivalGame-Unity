@@ -33,7 +33,7 @@ public class TileMapGenerator : MonoBehaviour
         }
 
         tilesetAnimated = new Dictionary<int, AnimatedTile>();
-        AnimatedTile[] tilesAnimated = Resources.LoadAll<AnimatedTile>("Animations/");
+        AnimatedTile[] tilesAnimated = Resources.LoadAll<AnimatedTile>("Animations/AnimatedTiles");
        
         for(int i = 0; i < tilesAnimated.Length; i++)
         {
@@ -47,6 +47,9 @@ public class TileMapGenerator : MonoBehaviour
 
     void CreateMap(float[,] heightMap, TerrainType[] regions)
     {
+        Vector3 v3 = new Vector3(-MapGenerator.mapChunkSize / 2, -MapGenerator.mapChunkSize / 2, 0);
+        tilemapIsland.transform.localPosition = v3;
+        tilemapWater.transform.localPosition = v3;
 
         int mapWidth = heightMap.GetLength(0);
         int mapHeight = heightMap.GetLength(1);
@@ -89,7 +92,7 @@ public class TileMapGenerator : MonoBehaviour
         }
         else
         {
-            return 6;
+            return 6;    
         }
     }
 
@@ -339,10 +342,79 @@ public class TileMapGenerator : MonoBehaviour
                                     case 33:
                                         UpdateTile(40, x, y, false, tileBiome[v]);
                                         break;
-
+                                    default:
+                                        int var = Random.Range(1, 5);
+                                        if (var == 1)
+                                        {
+                                            var = Random.Range(112, 114);
+                                            switch (var)
+                                            {
+                                                case 112:
+                                                    UpdateTile(112, x, y, false, tileBiome[v]);
+                                                    break;
+                                                case 113:
+                                                    UpdateTile(113, x, y, false, tileBiome[v]);
+                                                    break;
+                                                case 114:
+                                                    UpdateTile(114, x, y, false, tileBiome[v]);
+                                                    break;
+                                            }
+                                        }
+                                        break;
                                 }
                                 break;
                         }
+                    }
+                    else
+                    {
+                        north = (tileBiome[new Vector2(x - 1, y)] == tileBiome[new Vector2(x, y)] || tileBiome[new Vector2(x - 1, y)] == "sand") ? 0 : 1;
+                        south = (tileBiome[new Vector2(x + 1, y)] == tileBiome[new Vector2(x, y)] || tileBiome[new Vector2(x + 1, y)] == "sand") ? 0 : 1;
+                        west = (tileBiome[new Vector2(x, y - 1)] == tileBiome[new Vector2(x, y)] || tileBiome[new Vector2(x, y - 1)] == "sand") ? 0 : 1;
+                        east = (tileBiome[new Vector2(x, y + 1)] == tileBiome[new Vector2(x, y)] || tileBiome[new Vector2(x, y + 1)] == "sand") ? 0 : 1;
+
+
+                        mask = north + west * 2 + east * 4 + south * 8;
+
+                        if (mask == 0)
+                        { 
+                            int var = Random.Range(1, 5);
+                            if (var == 1)
+                            {
+                                var = Random.Range(103, 111);
+                                switch (var)
+                                {
+                                    case 103:
+                                        UpdateTile(103, x, y, false, tileBiome[v]);
+                                        break;
+                                    case 104:
+                                        UpdateTile(104, x, y, false, tileBiome[v]);
+                                        break;
+                                    case 105:
+                                        UpdateTile(105, x, y, false, tileBiome[v]);
+                                        break;
+                                    case 106:
+                                        UpdateTile(106, x, y, false, tileBiome[v]);
+                                        break;
+                                    case 107:
+                                        UpdateTile(107, x, y, false, tileBiome[v]);
+                                        break;
+                                    case 108:
+                                        UpdateTile(108, x, y, false, tileBiome[v]);
+                                        break;
+                                    case 109:
+                                        UpdateTile(109, x, y, false, tileBiome[v]);
+                                        break;
+                                    case 110:
+                                        UpdateTile(110, x, y, false, tileBiome[v]);
+                                        break;
+                                    case 111:
+                                        UpdateTile(111, x, y, false, tileBiome[v]);
+                                        break;
+
+                                }
+                            }
+                        }
+
                     }
                 }
             }
